@@ -1,0 +1,124 @@
+﻿@page "/"
+@inject ApiService ApiService
+@inject People.PeopleClient PeopleClient
+
+<button @onclick="APIButtonClicked">Test API</button>
+<br />
+<p>@APIResult</p>
+<br />
+
+<button @onclick="APIStreamButtonClicked">Test API Stream</button>
+<br />
+<p>@APIStreamResult</p>
+<br />
+
+<button @onclick="GRPCButtonClicked">Test gRPC</button>
+<br />
+<p>@GRPCResult</p>
+<br />
+
+<button @onclick="GRPCStreamButtonClicked">Test gRPC Stream</button>
+<br />
+<p>@GRPCStreamResult</p>
+<br />
+
+@code
+{
+    string APIResult = "";
+    string APIStreamResult = "";
+    string GRPCResult = "";
+    string GRPCStreamResult = "";
+    string PersonResult = "";
+    List<Person> People;
+
+    async Task APIButtonClicked()
+    {
+        // set up
+        APIResult = "Loading...";
+        await InvokeAsync(StateHasChanged);
+
+        // start time
+        var startTime = DateTime.Now;
+
+        // wait for all records to be received
+        People = await ApiService.GetAll();
+        if (People != null)
+        {
+            // show elapsed time
+            var elapsed = DateTime.Now.Subtract(startTime);
+            APIResult = $"{People.Count} records returned via API in {elapsed.TotalMilliseconds} ms.";
+        }
+    }
+
+    async Task APIStreamButtonClicked()
+    {
+        // set up
+        People = new List<Person>();
+        APIStreamResult = "Loading...";
+        await InvokeAsync(StateHasChanged);
+
+        // start time
+        var startTime = DateTime.Now;
+
+        // await foreach is used on an IAsyncEnumerable
+        // which returns items one at a time using 'yield return'
+        await foreach (var person in ApiService.GetAllStream())
+        {
+            // add this person to our list
+            People.Add(person);
+        }
+
+        // show elapsed time
+        var elapsed = DateTime.Now.Subtract(startTime);
+        APIStreamResult = $"{People.Count} records returned via API Stream in {elapsed.TotalMilliseconds} ms.";
+    }
+
+    async Task GRPCButtonClicked()
+    {
+        // set up
+        GRPCResult = "Loading...";
+        await InvokeAsync(StateHasChanged);
+
+        // start time
+        var startTime = DateTime.Now;
+
+        // get the PeopleResponse from gRPC
+        var response = await PeopleClient.GetAllAsync(new GetAllPeopleRequest());
+        if (response != null)
+        {
+            // set the list
+            People = response.People.ToList();
+
+            // show elapsed time
+            var elapsed = DateTime.Now.Subtract(startTime);
+            GRPCResult = $"{People.Count} records returned via gRPC in {elapsed.TotalMilliseconds} ms.";
+        }
+    }
+
+    async Task GRPCStreamButtonClicked()
+    {
+        // set up
+        var token = new System.Threading.CancellationToken();
+        People = new List<Person>();
+        GRPCStreamResult = "Loading...";
+        await InvokeAsync(StateHasChanged);
+
+        // start time
+        var startTime = DateTime.Now;
+
+        // the client-side for gRPC streams is a bit different.
+        // First we return an AsyncServerStreamingCall<Person>
+        using var call = PeopleClient.GetAllStream(new GetAllPeopleRequest());
+
+        // now we can iterate over the ResponseStream
+        while (await call.ResponseStream.MoveNext(token))
+        {
+            // Add this person to our list
+            People.Add(call.ResponseStream.Current);
+        }
+
+        // show elapsed time
+        var elapsed = DateTime.Now.Subtract(startTime);
+        GRPCStreamResult = $"{People.Count} records returned via gRPC Stream in {elapsed.TotalMilliseconds} ms.";
+    }
+}

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>45308354-36f7-4e9b-b840-f31b3c27314e</UserSecretsId>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Grpc.AspNetCore" Version="2.44.0" />
+		<PackageReference Include="Grpc.AspNetCore.Web" Version="2.44.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Client\BlazorGrpcDemo.Client.csproj" />
+		<ProjectReference Include="..\Shared\BlazorGrpcDemo.Shared.csproj" />
+	</ItemGroup>
+
+
+</Project>

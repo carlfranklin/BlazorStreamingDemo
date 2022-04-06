@@ -1,0 +1,29 @@
+﻿syntax = "proto3"; 
+option csharp_namespace = "BlazorGrpcDemo.Shared"; 
+package PeoplePackage; 
+
+service People { 
+	rpc GetAll (GetAllPeopleRequest) returns (PeopleReply); 
+	rpc GetPersonById (GetPersonByIdRequest) returns (Person);
+	rpc GetAllStream (GetAllPeopleRequest) returns (stream Person);
+} 
+
+message GetAllPeopleRequest {
+
+}
+
+message GetPersonByIdRequest {
+	int32 id = 1;
+}
+
+message PeopleReply { 
+	repeated Person people = 1; 
+} 
+
+message Person { 
+	int32 id = 1; 
+	string firstName = 2; 
+	string lastName = 3; 
+	string bio = 4; 
+	string photoUrl = 5; 
+}
