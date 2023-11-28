@@ -1,5 +1,9 @@
 # Streaming Three Ways (SignalR, REST, and gPRC)
 
+This repo and documentation compares performance and scalability of streaming with SignalR, REST, and gRPC in a .NET 7 Hosted Blazor WebAssembly App
+
+For a .NET 8 demo, go to https://github.com/carlfranklin/BlazorStreamingDemo8
+
 ### Overview
 
 Before we talk about Blazor, SignalR, REST, or gRPC, let's talk about streaming.
